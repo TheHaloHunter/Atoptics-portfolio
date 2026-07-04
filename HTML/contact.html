@@ -35,10 +35,76 @@
     <main id="main-content" class="overflow-y-auto h-screen transition-all duration-300 ease-in-out">
         <section class="p-8 md:p-16">
             <h1 class="text-5xl font-bold uppercase">Contact</h1>
-            <p class="mt-4 text-lg text-gray-300">This is the contact page.</p>
+            <p class="mt-4 text-lg text-gray-300">Have a question or want to work together? Drop a message below.</p>
+
+            <form id="contact-form" class="mt-8 space-y-6 max-w-4xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Your Name</label>
+                        <input type="text" name="name" id="name" required class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300">Your Email</label>
+                        <input type="email" name="email" id="email" required class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label for="message" class="block text-sm font-medium text-gray-300">Message</label>
+                    <textarea id="message" name="message" rows="5" required class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button type="submit" id="submit-btn" class="w-full md:w-auto inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                        Send Message
+                    </button>
+                    <p id="status-message" class="text-gray-300"></p>
+                </div>
+            </form>
         </section>
     </main>
 
     <script src="../JS/sidebar.js" defer></script>
+    <script>
+        const form = document.getElementById('contact-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusMessage = document.getElementById('status-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            statusMessage.textContent = '';
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value,
+            };
+
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusMessage.textContent = 'Message sent successfully!';
+                    statusMessage.className = 'text-green-400';
+                    form.reset();
+                } else {
+                    throw new Error(result.message || 'An unknown error occurred.');
+                }
+            } catch (error) {
+                statusMessage.textContent = `Error: ${error.message}`;
+                statusMessage.className = 'text-red-400';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        });
+    </script>
 </body>
 </html>

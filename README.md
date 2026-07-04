@@ -65,6 +65,22 @@ Now we need to give your live website the token so it can talk to GitHub. We wil
 
 **Success:** After you save the last variable, Vercel will automatically start a new deployment to apply these settings. Wait for it to finish. Your setup is now complete!
 
+#### **Step 5: Configure the Contact Form**
+
+To make the contact form work, you need to add three more environment variables in the same Vercel settings page from Step 4.
+
+*   **Variable 4:**
+    *   **Name:** `EMAIL_SERVICE`
+    *   **Value:** The name of your email provider (e.g., `Gmail` or `Outlook`).
+*   **Variable 5:**
+    *   **Name:** `EMAIL_USER`
+    *   **Value:** Your full email address (e.g., `your.email@gmail.com`).
+*   **Variable 6:**
+    *   **Name:** `EMAIL_PASS`
+    *   **Value:** An **App Password** for your email account. **Do not use your regular email password.** Search online for "how to create an app password for [Your Email Provider]" for instructions.
+
+After saving these, Vercel will redeploy your site. The contact form will now send messages to your email address.
+
 ---
 
 ## Part 2: How to Add New Photos to the Gallery
