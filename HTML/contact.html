@@ -61,6 +61,9 @@
     </main>
 
     <script src="../JS/sidebar.js" defer></script>
+    <!-- Replace YOUR_RECAPTCHA_SITE_KEY with your actual site key, or load it dynamically -->
+    <!-- For this project, we will add it directly. You can get this from your .env file. -->
+    <script src="https://www.google.com/recaptcha/api.js?render=Your_Public_reCAPTCHA_Site_Key" async defer></script>
     <script>
         const form = document.getElementById('contact-form');
         const submitBtn = document.getElementById('submit-btn');
@@ -73,35 +76,43 @@
             submitBtn.textContent = 'Sending...';
             statusMessage.textContent = '';
 
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                message: document.getElementById('message').value,
-            };
+            // The reCAPTCHA Site Key you get from Google
+            const recaptchaSiteKey = 'Your_Public_reCAPTCHA_Site_Key';
 
-            try {
-                const response = await fetch('/api/send-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+            grecaptcha.ready(function() {
+                grecaptcha.execute(recaptchaSiteKey, {action: 'submit'}).then(async function(token) {
+                    const formData = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        message: document.getElementById('message').value,
+                        token: token, // Add the token to the form data
+                    };
+
+                    try {
+                        const response = await fetch('/api/send-email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(formData),
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            statusMessage.textContent = 'Message sent successfully!';
+                            statusMessage.className = 'text-green-400';
+                            form.reset();
+                        } else {
+                            throw new Error(result.message || 'An unknown error occurred.');
+                        }
+                    } catch (error) {
+                        statusMessage.textContent = `Error: ${error.message}`;
+                        statusMessage.className = 'text-red-400';
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Send Message';
+                    }
                 });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    statusMessage.textContent = 'Message sent successfully!';
-                    statusMessage.className = 'text-green-400';
-                    form.reset();
-                } else {
-                    throw new Error(result.message || 'An unknown error occurred.');
-                }
-            } catch (error) {
-                statusMessage.textContent = `Error: ${error.message}`;
-                statusMessage.className = 'text-red-400';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Send Message';
-            }
+            });
         });
     </script>
 </body>

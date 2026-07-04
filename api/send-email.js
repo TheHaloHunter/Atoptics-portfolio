@@ -7,14 +7,31 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    const { name, email, message } = req.body;
+    const { name, email, message, token } = req.body;
 
     // Basic validation
-    if (!name || !email || !message) {
-        return res.status(400).json({ message: 'Missing required fields: name, email, and message.' });
+    if (!name || !email || !message || !token) {
+        return res.status(400).json({ message: 'Missing required fields.' });
     }
 
-    // Get email credentials from Vercel Environment Variables
+    // --- reCAPTCHA Verification ---
+    try {
+        const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
+        });
+        const captchaValidation = await response.json();
+
+        if (!captchaValidation.success || captchaValidation.score < 0.5) {
+            return res.status(400).json({ message: 'reCAPTCHA validation failed.' });
+        }
+    } catch (error) {
+        console.error("reCAPTCHA validation error:", error);
+        return res.status(500).json({ message: 'Failed to verify reCAPTCHA.' });
+    }
+
+    // --- Email Sending Logic ---
     const emailService = process.env.EMAIL_SERVICE;
     const emailUser = process.env.EMAIL_USER;
     const emailPass = process.env.EMAIL_PASS;
@@ -42,23 +59,33 @@ export default async function handler(req, res) {
     }
 
     try {
-        await transporter.sendMail({
-            from: `"${name}" <${email}>`, // Show the sender's name and email
-            to: emailUser, // Send the email to yourself
-            replyTo: email, // Set the reply-to to the sender's email
+        const sendMailPromise = transporter.sendMail({
+            from: `"${name}" <${email}>`,
+            to: emailUser,
+            replyTo: email,
             subject: `New Atoptics Contact Form Message from ${name}`,
             html: `
                 <h3>New Contact Form Submission</h3>
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
                 <p><strong>Message:</strong></p>
-                <p>${message.replace(/\n/g, '<br>')}</p>
-            `,
+                <p>${message.replace(/\n/g, '<br>')}</p>`,
         });
+
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+                reject(new Error('Email sending timed out after 30 seconds.'));
+            }, 30000); // 30 seconds
+        });
+
+        // Race the email sending against the timeout
+        await Promise.race([sendMailPromise, timeoutPromise]);
 
         res.status(200).json({ message: 'Email sent successfully!' });
     } catch (error) {
         console.error("Error sending email:", error);
-        res.status(500).json({ message: 'Failed to send email.', error: error.message });
+        const errorMessage = error.message.includes('timed out') ? 'Request timed out. Please try again later.' : 'Failed to send email.';
+        const statusCode = error.message.includes('timed out') ? 504 : 500;
+        res.status(statusCode).json({ message: errorMessage });
     }
 }

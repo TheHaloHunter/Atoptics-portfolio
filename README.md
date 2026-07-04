@@ -65,28 +65,105 @@ Now, choose one of the following free hosting providers to get your site online.
     *   Select your `atoptics.com` repository.
 
 2.  **Add Environment Variables:**
-    *   On the final deployment screen, before you click deploy, go to **"Advanced build settings"** or look for a button to add variables.
-    *   Click **"Add environment variables"**.
+    *   On the final deployment screen, you will see several settings.
+    *   **Build command:** Leave this blank.
+    *   **Publish directory:** Leave this blank.
+    *   **Functions directory:** Enter `api`.
+    *   Click **"Advanced build settings"**, then **"Add environment variables"**.
     *   Add all the variables listed in the **"Environment Variables Reference"** section below.
-    *   Click the **"Deploy site"** button.
+    *   Finally, click the **"Deploy site"** button.
 
 **Success:** Netlify will build and deploy your site. You'll get a free URL (like `your-project-name.netlify.app`) where your website is now live.
 
 ---
 
-### Environment Variables Reference
+### Step 4: Configure Your Environment Variables
 
-You need to add the following variables to your chosen hosting provider (Vercel or Netlify) for the site's features to work.
+This project uses environment variables to keep your secret keys (like API tokens and passwords) secure.
 
-#### For the Gallery Uploader:
-*   `GITHUB_TOKEN`: The Personal Access Token you created in Step 2.
-*   `GITHUB_OWNER`: Your GitHub username.
-*   `GITHUB_REPO`: The name of your repository (`atoptics.com`).
+**For Deployment (on Netlify/Vercel):**
+You still need to add the following variables in your hosting provider's dashboard settings. This is how your live website will get its keys.
 
-#### For the Contact Form:
-*   `EMAIL_SERVICE`: The name of your email provider (e.g., `Gmail` or `Outlook`).
-*   `EMAIL_USER`: Your full email address (e.g., `your.email@gmail.com`).
-*   `EMAIL_PASS`: An **App Password** for your email account. **Do not use your regular email password.** Search online for "how to create an app password for [Your Email Provider]" for instructions.
+> **IMPORTANT:** You will need to register your site with Google reCAPTCHA to get the keys for the contact form. Follow the instructions in the `RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` sections below.
+
+---
+
+Here is a detailed guide on how to find or create the value for each key:
+
+*   **`GITHUB_TOKEN`**
+    *   **How to get:** This is the token you generated and copied in **Part 1, Step 2** of this guide.
+
+*   **`GITHUB_OWNER`**
+    *   **How to get:** This is your GitHub username. You can find it in the URL of your forked repository: `https://github.com/[YOUR-USERNAME]/Atoptics-portfolio`.
+
+*   **`GITHUB_REPO`**
+    *   **How to get:** This is the name of your forked repository. You can find it in the URL: `https://github.com/your-username/[REPOSITORY-NAME]`. It should be `Atoptics-portfolio`.
+
+*   **`EMAIL_SERVICE`**
+    *   **How to get:** This is the name of your email provider. Enter `Gmail` for a Gmail account, or `Outlook` for an Outlook/Hotmail account.
+
+*   **`EMAIL_USER`**
+    *   **How to get:** This is your full email address that you want to receive contact form messages at (e.g., `your.email@gmail.com`).
+
+*   **`EMAIL_PASS`**
+    *   **How to get:** This is an **App Password**, not your regular email password. You must generate it from your email account's security settings.
+    *   **For Gmail:**
+        1.  Go to your Google Account settings.
+        2.  Go to the "Security" tab.
+        3.  Under "How you sign in to Google," you will need to enable **2-Step Verification**.
+        4.  Once 2-Step Verification is on, a new option called **"App passwords"** will appear on the same page. Click it.
+        5.  Generate a new password for an app (you can name it "Atoptics Website") and copy the 16-character password it gives you.
+    *           4.  Once 2-Step Verification is on, a new option called **"App passwords"** will appear on the same page. Click it.
+        5.  Generate a new password for an app (you can name it "Atoptics Website") and copy the 16-character password it gives you.
+        
+    *   **For Outlook:**
+        1.  Go to your Microsoft Account security dashboard: [account.microsoft.com/security](https://account.microsoft.com/security).
+        2.  Select **"Advanced security options"**.
+        3.  If two-step verification is not already on, you will need to enable it under the "Additional security" section.
+        4.  After it's enabled, scroll down the same page to find the **"App passwords"** section.
+        5.  Click **"Create a new app password"**.
+        6.  Microsoft will generate a password for you. Copy this password and use it as the value for `EMAIL_PASS`.
+
+**For Local Development (Optional):**
+To run the site on your own computer, you need to create a local `.env` file.
+
+1.  Find the file named `.env.example` in the project folder.
+2.  Make a copy of it and rename the copy to just `.env`.
+3.  Open the new `.env` file and replace the placeholder values with your actual keys and secrets.
+
+> **IMPORTANT!** The `.env` file is listed in `.gitignore`. This is intentional. It prevents your secret keys from ever being uploaded to GitHub, keeping your accounts secure. Never remove `.env` from your `.gitignore` file.
+
+#### Understanding the `.env` and `.gitignore` Workflow
+
+This is the most important security concept for the project. The `.env` file with your secrets is **never** uploaded to GitHub. So how does the live website get the keys?
+
+The answer is that your project runs in two separate environments, and each gets its keys from a different place:
+
+1.  **Your Local Computer (for testing):**
+    *   When you run the project locally, the code reads your secrets directly from the `.env` file in your project folder.
+    *   The `.gitignore` file protects you by blocking this file from ever being uploaded.
+
+2.  **The Live Website (on Netlify/Vercel):**
+    *   The live website **does not have access to your `.env` file.** It doesn't exist on the server.
+    *   Instead, when the code runs online, it gets its keys from the secure **Environment Variables** that you entered manually into your hosting provider's dashboard during setup.
+
+The code is written to ask the system for a key (e.g., `process.env.GITHUB_TOKEN`). The system provides the correct value depending on whether it's running on your computer or on the live server. This keeps your secrets safe and separate from your public code.
+
+#### A Note on Different Email Methods
+
+You might have another website that sends emails without needing a `.env` file or server-side hosting. This is very common and usually works by using a **client-side email service** like Formspree or EmailJS.
+
+*   **Client-Side Service (e.g., Formspree):**
+    *   **How it works:** The HTML form submits data directly to the service's URL. The service handles sending the email for you.
+    *   **Pros:** Very simple to set up and can run on basic hosting like GitHub Pages.
+    *   **Cons:** Less control, often has monthly limits, and your Formspree endpoint ID is public in the HTML. (Note: Formspree also offers a more secure backend method that *does* use a secret API key, but it still relies on their service).
+
+*   **Server-Side Solution (This Project's Method):**
+    *   **How it works:** The form sends data to our own backend code (`api/send-email.js`). This code uses your secret credentials to log in to your email account (e.g., Gmail) and send the email directly from your address.
+    *   **Pros:** More professional, full control, no third-party branding, and higher sending limits.
+    *   **Cons:** Requires a host that supports server-side functions (like Netlify/Vercel) and the secure use of environment variables for your password.
+
+This project uses the more robust server-side method, which is why the environment variables are necessary.
 
 ---
 

@@ -7,3 +7,6 @@ yarn-error.log*
 # Build output
 dist/
 build/
+
+# Environment variables - contains secrets!
+.env
