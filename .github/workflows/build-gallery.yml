@@ -1,0 +1,31 @@
+name: Build Gallery on Push
+
+on:
+  push:
+    branches:
+      - main # Or your primary branch, e.g., master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a current LTS version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build gallery data
+        run: npm run gallery:build
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: Auto-build gallery from updated content'
+          file_pattern: 'HTML/gallery.html'
