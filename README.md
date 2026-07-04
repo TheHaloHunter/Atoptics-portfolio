@@ -4,9 +4,9 @@ This guide will walk you through everything you need to know to take ownership o
 
 ---
 
-## Part 1: Initial Setup (One-Time Only)
+## Part 1: Initial Setup & Deployment (One-Time Only)
 
-In this part, we will create your own copy of the website and host it online for free using a service called Vercel.
+In this part, we will create your own copy of the website and host it online for free.
 
 ### Step 1: Create Your Own Copy on GitHub (Forking)
 
@@ -18,20 +18,7 @@ First, you need to create a personal copy of the project's code in your own GitH
 
 **Success:** You will be taken to a new GitHub page that looks identical to the original, but the name at the top-left will now be `your-username/atoptics.com`. This is now your personal copy.
 
-### Step 2: Deploy Your Website with Vercel
-
-Next, we will use a free service called Vercel to put your website online.
-
-1.  Go to vercel.com.
-2.  Click **"Sign Up"** and choose the **"Hobby"** plan, which is free.
-3.  When asked how to sign up, click the button that says **"Continue with GitHub"**. This will link your Vercel and GitHub accounts.
-4.  After signing up, you will be on your Vercel dashboard. Click the **"Add New..."** button and select **"Project"**.
-5.  Vercel will show you a list of your GitHub projects. Find your new `atoptics.com` project (the one you just forked) and click the **"Import"** button next to it.
-6.  On the next screen, you don't need to change any settings. Just scroll down and click the **"Deploy"** button.
-
-**Success:** Vercel will start building your site. After a minute or two, you will see a "Congratulations!" message with a preview of your live website. Vercel has given you a free URL (like `atoptics-com-username.vercel.app`). Your website is now live!
-
-### Step 3: Create a Secure "Password" for the Uploader (GitHub Token)
+### Step 2: Create a Secure "Password" for the Uploader (GitHub Token)
 
 To allow your website's admin page to upload files to your GitHub repository, you need to create a special, secure password called a Personal Access Token (PAT).
 
@@ -46,40 +33,60 @@ To allow your website's admin page to upload files to your GitHub repository, yo
 
 **Success:** GitHub will show you your new token. It will look like a long string of letters and numbers. **COPY THIS TOKEN IMMEDIATELY.** You will not be able to see it again. Paste it into a temporary, safe place like a text file.
 
-### Step 4: Add the Secure "Password" to Vercel
+### Step 3: Deploy Your Website
 
-Now we need to give your live website the token so it can talk to GitHub. We will do this using secure "Environment Variables".
+Now, choose one of the following free hosting providers to get your site online. Netlify and Vercel are both excellent choices.
 
-1.  Go back to your project on the Vercel dashboard.
-2.  Click the **"Settings"** tab at the top, then click **"Environment Variables"** in the left menu.
-3.  You will need to create **three** variables. For each one, enter the name and value, then click **"Save"**.
-    *   **Variable 1:**
-        *   **Name:** `GITHUB_TOKEN`
-        *   **Value:** Paste the token you copied from GitHub.
-    *   **Variable 2:**
-        *   **Name:** `GITHUB_OWNER`
-        *   **Value:** Your GitHub username.
-    *   **Variable 3:**
-        *   **Name:** `GITHUB_REPO`
-        *   **Value:** The name of your repository, which should be `atoptics.com`.
+---
 
-**Success:** After you save the last variable, Vercel will automatically start a new deployment to apply these settings. Wait for it to finish. Your setup is now complete!
+#### Option A: Deploy with Vercel
 
-#### **Step 5: Configure the Contact Form**
+1.  **Sign Up & Import:**
+    *   Go to vercel.com and sign up for a free "Hobby" account using your GitHub profile.
+    *   From your dashboard, click **"Add New..."** -> **"Project"**.
+    *   Find your `atoptics.com` repository and click **"Import"**.
+    *   You don't need to change any build settings.
 
-To make the contact form work, you need to add three more environment variables in the same Vercel settings page from Step 4.
+2.  **Add Environment Variables:**
+    *   Before deploying, expand the **"Environment Variables"** section.
+    *   Add all the variables listed in the **"Environment Variables Reference"** section below.
+    *   Click the **"Deploy"** button.
 
-*   **Variable 4:**
-    *   **Name:** `EMAIL_SERVICE`
-    *   **Value:** The name of your email provider (e.g., `Gmail` or `Outlook`).
-*   **Variable 5:**
-    *   **Name:** `EMAIL_USER`
-    *   **Value:** Your full email address (e.g., `your.email@gmail.com`).
-*   **Variable 6:**
-    *   **Name:** `EMAIL_PASS`
-    *   **Value:** An **App Password** for your email account. **Do not use your regular email password.** Search online for "how to create an app password for [Your Email Provider]" for instructions.
+**Success:** Vercel will build and deploy your site. You'll get a free URL (like `atoptics-com-username.vercel.app`) where your website is now live.
 
-After saving these, Vercel will redeploy your site. The contact form will now send messages to your email address.
+---
+
+#### Option B: Deploy with Netlify (Recommended Alternative)
+
+1.  **Sign Up & Import:**
+    *   Go to netlify.com and sign up for a free account using your GitHub profile.
+    *   From your dashboard, click **"Add new site"** -> **"Import an existing project"**.
+    *   Choose **"GitHub"** and authorize it to see your repositories.
+    *   Select your `atoptics.com` repository.
+
+2.  **Add Environment Variables:**
+    *   On the final deployment screen, before you click deploy, go to **"Advanced build settings"** or look for a button to add variables.
+    *   Click **"Add environment variables"**.
+    *   Add all the variables listed in the **"Environment Variables Reference"** section below.
+    *   Click the **"Deploy site"** button.
+
+**Success:** Netlify will build and deploy your site. You'll get a free URL (like `your-project-name.netlify.app`) where your website is now live.
+
+---
+
+### Environment Variables Reference
+
+You need to add the following variables to your chosen hosting provider (Vercel or Netlify) for the site's features to work.
+
+#### For the Gallery Uploader:
+*   `GITHUB_TOKEN`: The Personal Access Token you created in Step 2.
+*   `GITHUB_OWNER`: Your GitHub username.
+*   `GITHUB_REPO`: The name of your repository (`atoptics.com`).
+
+#### For the Contact Form:
+*   `EMAIL_SERVICE`: The name of your email provider (e.g., `Gmail` or `Outlook`).
+*   `EMAIL_USER`: Your full email address (e.g., `your.email@gmail.com`).
+*   `EMAIL_PASS`: An **App Password** for your email account. **Do not use your regular email password.** Search online for "how to create an app password for [Your Email Provider]" for instructions.
 
 ---
 
